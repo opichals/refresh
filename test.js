@@ -113,7 +113,7 @@ var Handlers = {
         "Content-Type": data.mime,
         "Content-Length": data.content.length
       });
-      res.write(data.content);
+      res.write(new Buffer(data.content, "binary"));
       res.end();
     } else {
       res.writeHeader(404, {});
