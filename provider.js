@@ -1,9 +1,9 @@
 var data = { 'test': { 'a.txt': { mime: 'text/plain', content: 'a.contents' } } };
 
 function find(path) {
-  return path.replace(/[^\._A-Za-z\/]/g, '').split('/').reduce(function (data, name) {
+  return path.replace(/[^\.\-_A-Za-z0-9\/]/g, '').split('/').reduce(function (data, name) {
     if (name === "") return data;
-    // console.log('fnd:', data, name);
+    // console.log('fnd:', Object.keys(data), name);
     return data[name];
   }, data);
 }
@@ -30,9 +30,7 @@ function getSingleProp(obj, name) {
 module.exports = {
   getProp: function (path, props) {
     var obj = find(path);
-        if (obj && obj.content) {
-          console.log('obj.len', path, typeof obj.content, obj.content.length);
-        }
+    if (obj) { console.log('LEN', path, typeof obj.content, obj.content && obj.content.length); }
     if (!obj) {
       return undefined;
     }
@@ -44,19 +42,19 @@ module.exports = {
   get: function (path) {
     return find(path);
   },
-  put: function (path, contents) {
+  put: function (path, entry) {
     var pos = path.lastIndexOf('/');
     var name = path.substr(pos + 1);
     path = path.substr(0, pos);
     var parent = find(path);
     if (parent) {
     // if (parent && !parent.hasOwnProperty(name)) {
-      parent[name] = contents;
+      console.log('PUT_:', name, entry.content.length);
+      parent[name] = entry;
       return parent[name];
     }
   },
   makeCol: function (path) {
-    path = path.substr(0, path.length - 1);
     var pos = path.lastIndexOf('/');
     var name = path.substr(pos + 1);
     path = path.substr(0, pos);
@@ -67,14 +65,21 @@ module.exports = {
     }
   },
   del: function (path) {
-    path = path.substr(0, path.length - 1);
+    console.log('DEL_:', path); // FIXME: TODO
     var pos = path.lastIndexOf('/');
     var name = path.substr(pos + 1);
     path = path.substr(0, pos);
     var parent = find(path);
-    if (parent && parent.hasOwnProperty(name)) {
+    if (parent && parent[name]) {
       delete parent[name];
       return true;
+    }
+  },
+  mv: function(path, dest) {
+    console.log('MOVE_:', path, dest);
+    entry = this.get(path);
+    if (entry && this.put(dest, entry)) {
+        return this.del(path);
     }
   },
   data: data

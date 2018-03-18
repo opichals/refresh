@@ -88,16 +88,43 @@ var Handlers = {
       res.end();
     }
   },
+  MOVE: function(req, res, body) {
+    // MOVE /lara-fabian.jpg HTTP/1.1
+    // headers: { host: '127.0.0.1:6543',
+    //   destination: 'http://127.0.0.1:6543/test/lara-fabian.jpg',
+    //   'user-agent': 'WebDAVFS/3.0.0 (03008000) Darwin/15.6.0 (x86_64)' }
+    if (source.mv(req.url, require('url').parse(req.headers['destination']).path)) {
+      res.writeHeader(204, "No Content", {});
+      res.end();
+    } else {
+      res.writeHeader(404, "Not Found", {});
+      res.end();
+    }
+  },
   LOCK: function (req, res, body) {
-    res.writeHeader(200, "OK", {});
+    // TODO: implement locking
+    var output = Xml.render({ lock: { lockdiscovery: { activelock: {
+        locktype: { transaction: { groupoperation: {} } },
+        lockscope: { local: {} },
+        depth: 0,
+        owner: { href: req.url },
+        timeout: 'Second-3600',
+        locktoken: { href: 'LOCKTOKEN-'+req.url }
+    }}}});
+    res.writeHeader(200, "Multi Status", {
+      "Content-Type": 'text/xml; charset="utf-8"',
+      "Content-length": output.length
+    });
+    res.write(output);
     res.end();
   },
   UNLOCK: function (req, res, body) {
-    res.writeHeader(200, "OK", {});
+    // TODO: implement locking
+    console.log("UNLOCK:", req.headers['lock-token']);
+    res.writeHeader(204, "No Content", {});
     res.end();
   },
   PUT: function (req, res, body) {
-    console.log("PUT: ", req.headers['content-type'], body && body.length, JSON.stringify(req.headers, null, 2));
     if (source.put(req.url, { mime: req.headers['content-type'], content: body})) {
       res.writeHeader(201, "Created", {});
       res.end();
@@ -157,7 +184,7 @@ http.createServer(function (req, res) {
     });
   } else {
     get_body(function (body) {
-      // p(req);
+      p(req.headers);
       p(body);
       res.writeHeader(500, {'Content-Type': 'text/plain'});
       res.write(body);
