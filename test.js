@@ -52,10 +52,10 @@ var Handlers = {
       res.writeHeader(404, "Not Found", {});
       res.end();
       return;
-    };
+    }
     if (depth > 0) {
         const o = source.get(req.url);
-        var list = Object.keys(o).map(item => propfind(req.url+''+item, propnames));
+        var list = Object.keys(o).map(function(item) { return propfind(req.url+''+item, propnames) });
         list.unshift(v);
         v = list;
     }

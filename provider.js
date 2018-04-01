@@ -10,17 +10,15 @@ function find(path) {
 
 
 function getSingleProp(obj, name) {
-    if (name === "getlastmodified") {
-      return (new Date()).toUTCString();
-    }
-    if (name === "creationdate") {
-      return (new Date(0)).toUTCString();
-    }
-    if (name === "resourcetype") {
-      return obj && typeof obj.content === 'string' ? "" : "<D:collection/>";
-    }
-    if (name === "getcontentlength") {
-      return obj && obj.content && obj.content.length || 0;
+    switch (name) {
+      case "getlastmodified":
+        return (new Date()).toUTCString();
+      case "creationdate":
+        return (new Date(0)).toUTCString();
+      case "resourcetype":
+        return obj && typeof obj.content === 'string' ? "" : "<D:collection/>";
+      case "getcontentlength":
+        return obj && obj.content && obj.content.length || 0;
     }
     if (obj && obj.hasOwnProperty(name)) {
       return obj[name];
@@ -34,7 +32,7 @@ module.exports = {
     if (!obj) {
       return undefined;
     }
-    return props.reduce((ps, name) => {
+    return props.reduce(function (ps, name) {
         ps[name] = getSingleProp(obj, name);
         return ps;
     }, {});
