@@ -54,19 +54,29 @@ var Handlers = {
       return;
     }
     if (depth > 0) {
-        const o = source.get(req.url);
-        var list = Object.keys(o).map(function(item) { return propfind(req.url+''+item, propnames) });
-        list.unshift(v);
-        v = list;
-    }
+        res.writeHeader(207, "Multi Status", {
+          "Content-Type": 'text/xml; charset="utf-8"'
+        });
+        res.write(Xml.renderKeyStartTag('multistatus', true));
+        res.write(Xml.render(v, false));
 
-    var output = Xml.render({ multistatus: { response: v } });
-    // console.log('<getProp', JSON.stringify(v, null, 2));
-    res.writeHeader(207, "Multi Status", {
-      "Content-Type": 'text/xml; charset="utf-8"',
-      "Content-length": output.length
-    });
-    res.write(output);
+        const o = source.get(req.url);
+        Object.keys(o).map(function(item) {
+            let e = propfind(req.url+''+item, propnames);
+            const xml = Xml.render(e, false)
+            console.log(xml);
+            res.write(xml);
+        });
+        res.write(Xml.renderKeyEndTag('multistatus'));
+    } else {
+       var output = Xml.renderDoc({ multistatus: { response: v } });
+       // console.log('<getProp', JSON.stringify(v, null, 2));
+       res.writeHeader(207, "Multi Status", {
+         "Content-Type": 'text/xml; charset="utf-8"',
+         "Content-length": output.length
+       });
+       res.write(output);
+    }
     res.end();
   },
   MKCOL: function (req, res, body) {
@@ -103,7 +113,7 @@ var Handlers = {
   },
   LOCK: function (req, res, body) {
     // TODO: implement locking
-    var output = Xml.render({ lock: { lockdiscovery: { activelock: {
+    var output = Xml.renderDoc({ lock: { lockdiscovery: { activelock: {
         locktype: { transaction: { groupoperation: {} } },
         lockscope: { local: {} },
         depth: 0,
