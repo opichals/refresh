@@ -69,7 +69,7 @@ var Handlers = {
         });
         res.write(Xml.renderKeyEndTag('multistatus'));
     } else {
-       var output = Xml.renderDoc({ multistatus: { response: v } });
+       var output = Xml.renderDoc({ multistatus: v });
        // console.log('<getProp', JSON.stringify(v, null, 2));
        res.writeHeader(207, "Multi Status", {
          "Content-Type": 'text/xml; charset="utf-8"',
