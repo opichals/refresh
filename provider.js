@@ -1,7 +1,7 @@
 var data = { 'test': { 'a.txt': { mime: 'text/plain', content: 'a.contents' } } };
 
 function find(path) {
-  return path.replace(/[^\.\-_A-Za-z0-9\/]/g, '').split('/').reduce(function (data, name) {
+  return path.replace(/[^\.\-_A-Za-z0-9%\/]/g, '').split('/').reduce(function (data, name) {
     if (name === "") return data;
     // console.log('fnd:', Object.keys(data), name);
     return data[name];
